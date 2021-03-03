@@ -16,18 +16,15 @@ class UsersController < ApplicationController
     @user = User.new
   end
 
-  # GET /users/1/edit
-  def edit
-  end
-
   # POST /users or /users.json
   def create
     # binding.pry
-    if helpers.password_match(password: params[:user][:password], password_confirmation: params[:user][:password_confirmation])
-      @user = User.create(name: params[:user][:name], password_digest: params[:user][:password])
-      redirect_to 'session#create'
+    if password_match(params)
+      @user = User.create(name: params[:user][:name], password: params[:user][:password])
+      session[:user_id] = @user.id
+      redirect_to '/welcome'
     else
-      redirect_to '/login'
+      redirect_to '/users/new'
     end
   end
 
@@ -64,5 +61,11 @@ class UsersController < ApplicationController
     def user_params
       params.require(:user).permit(:name, :password, :password_confirmation)
     end
+
+
+  def password_match(params)
+    # params[:user][:password_confirmation] == params[:user][:password] ? true : false
+    user_params[:password_confirmation] == user_params[:password] ? true :false
+  end
 
 end
